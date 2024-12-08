@@ -1,5 +1,6 @@
 # Dependency directories
 node_modules/
+.netlify
 
 # Logs
 npm-debug.log*
