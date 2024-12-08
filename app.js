@@ -119,6 +119,27 @@ app.get('/song/:songName', async (req, res) => {
         res.status(500).send('Error fetching song.');
     }
 });
+
+app.get('/tags', async (req, res) => {
+    try {
+        const tags = await Song.distinct('tags'); // Get unique tags
+        res.json(tags);
+    } catch (err) {
+        console.error('Error fetching tags:', err);
+        res.status(500).send('Error fetching tags.');
+    }
+});
+app.get('/songs/:tag', async (req, res) => {
+    try {
+        const tag = req.params.tag;
+        const songs = await Song.find({ tags: tag });
+        res.json(songs);
+    } catch (err) {
+        console.error('Error fetching songs:', err);
+        res.status(500).send('Error fetching songs.');
+    }
+});
+
 // Start the server
 const port = 3000;
 app.listen(port, () => {
