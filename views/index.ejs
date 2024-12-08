@@ -4,59 +4,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Songs App</title>
+    <title>Song Radio</title>
     <link rel="stylesheet" href="/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <header>
-        <h1>My Songs Collection</h1>
+        <h1>My Song Radio</h1>
     </header>
     <nav>
-        <a href="/upload">Upload Song</a>
-        <a href="/">View Songs</a>
+        <button id="randomPlayButton">Play Random Radio</button>
+        <button id="toggleDrawerButton">Tags</button>
     </nav>
     <div class="container">
-        <% Object.keys(songsByTags).forEach(tag=> { %>
-            <div class="songs-section">
-                <h2>Tag: <%= tag %>
-                </h2>
-                <ul class="song-list">
-                    <% songsByTags[tag].forEach(song=> { %>
-                        <li>
-                            <span>
-                                <%= song.songName %>
-                            </span>
-                            <button onclick="playSong('<%= song.songName %>')">Play</button>
-                        </li>
-                        <% }) %>
-                </ul>
-            </div>
-            <% }) %>
-                <audio id="audioPlayer" controls>
-                    <source id="audioSource" type="audio/mpeg">
-                    Your browser does not support the audio element.
-                </audio>
+        <aside id="sideDrawer" class="hidden">
+            <button id="sideDrawerCloseButton">Close</button>
+            <h2>Tags</h2>
+            <ul id="tagList"></ul>
+        </aside>
+        <main>
+            <audio id="audioPlayer" controls>
+                <source id="audioSource" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </main>
     </div>
     <footer>
-        <p>&copy; 2024 My Songs App</p>
+        <p>&copy; 2024 Song Radio</p>
     </footer>
     <script>
-        function playSong(songName) {
+        let currentTag = null;
+        let songQueue = [];
+
+        // Fetch tags and populate the side drawer
+        async function fetchTags() {
+            const res = await fetch('/tags');
+            const tags = await res.json();
+            const tagList = document.getElementById('tagList');
+            tagList.innerHTML = '';
+            tags.forEach(tag => {
+                const li = document.createElement('li');
+                li.textContent = tag;
+                li.addEventListener('click', () => startRadio(tag));
+                tagList.appendChild(li);
+            });
+        }
+
+        // Fetch songs by tag
+        async function fetchSongsByTag(tag) {
+            const res = await fetch(`/songs/${tag}`);
+            const songs = await res.json();
+            return songs;
+        }
+
+        // Play the next song in the queue
+        function playNextSong() {
+            if (songQueue.length === 0) {
+                alert(`No more songs in the ${currentTag} tag!`);
+                return;
+            }
+            const song = songQueue.shift();
             const audioPlayer = document.getElementById('audioPlayer');
             const audioSource = document.getElementById('audioSource');
-            audioPlayer.currentTime = 0;
-            const encodedSongName = encodeURIComponent(songName);
-            audioSource.src = `/preaudio/${encodedSongName}`;
+            audioSource.src = `/preaudio/${encodeURIComponent(song.songName)}`;
             audioPlayer.onended = () => {
-                audioSource.src = `/song/${encodedSongName}`;
+                audioSource.src = `/song/${encodeURIComponent(song.songName)}`;
+                audioPlayer.onended = playNextSong;
                 audioPlayer.load();
                 audioPlayer.play();
             };
             audioPlayer.load();
             audioPlayer.play();
         }
+
+        // Start the radio for a specific tag
+        async function startRadio(tag) {
+            currentTag = tag;
+            const songs = await fetchSongsByTag(tag);
+            songQueue = songs.sort(() => Math.random() - 0.5); // Shuffle songs
+            playNextSong();
+        }
+
+        // Start random radio
+        async function startRandomRadio() {
+            const res = await fetch('/tags');
+            const tags = await res.json();
+            const randomTag = tags[Math.floor(Math.random() * tags.length)];
+            startRadio(randomTag);
+        }
+
+        // Event listeners
+        document.getElementById('randomPlayButton').addEventListener('click', startRandomRadio);
+        document.getElementById('toggleDrawerButton').addEventListener('click', () => {
+            const sideDrawer = document.getElementById('sideDrawer');
+            sideDrawer.classList.toggle('hidden');
+        });
+
+        // Close the side drawer
+        document.getElementById('sideDrawerCloseButton').addEventListener('click', () => {
+            const sideDrawer = document.getElementById('sideDrawer');
+            sideDrawer.classList.add('hidden');
+        });
+
+        // Initial fetch
+        fetchTags();
     </script>
 </body>
 
