@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Songs App</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>My Songs Collection</h1>
+    </header>
+    <nav>
+        <a href="/upload">Upload Song</a>
+        <a href="/">View Songs</a>
+    </nav>
+    <div class="container">
+        <% Object.keys(songsByTags).forEach(tag=> { %>
+            <div class="songs-section">
+                <h2>Tag: <%= tag %>
+                </h2>
+                <ul class="song-list">
+                    <% songsByTags[tag].forEach(song=> { %>
+                        <li>
+                            <span>
+                                <%= song.songName %>
+                            </span>
+                            <button onclick="playSong('<%= song.songName %>')">Play</button>
+                        </li>
+                        <% }) %>
+                </ul>
+            </div>
+            <% }) %>
+                <audio id="audioPlayer" controls>
+                    <source id="audioSource" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+    </div>
+    <footer>
+        <p>&copy; 2024 My Songs App</p>
+    </footer>
+    <script>
+        function playSong(songName) {
+            const audioPlayer = document.getElementById('audioPlayer');
+            const audioSource = document.getElementById('audioSource');
+            audioPlayer.currentTime = 0;
+            const encodedSongName = encodeURIComponent(songName);
+            audioSource.src = `/preaudio/${encodedSongName}`;
+            audioPlayer.onended = () => {
+                audioSource.src = `/song/${encodedSongName}`;
+                audioPlayer.load();
+                audioPlayer.play();
+            };
+            audioPlayer.load();
+            audioPlayer.play();
+        }
+    </script>
+</body>
+
+</html>

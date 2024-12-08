@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Song</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>Upload a Song</h1>
+    </header>
+    <nav>
+        <a href="/">View Songs</a>
+    </nav>
+    <div class="container">
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <label for="songName">Song Name:</label>
+            <input type="text" name="songName" required>
+            <label for="songTags">Song Tags (comma-separated):</label>
+            <input type="text" name="songTags" required>
+            <label for="preAudio">Pre-Audio (MP3):</label>
+            <input type="file" name="preAudio" accept="audio/mp3" required>
+            <label for="song">Main Song (MP3):</label>
+            <input type="file" name="song" accept="audio/mp3" required>
+            <button type="submit">Upload Song</button>
+        </form>
+    </div>
+    <footer>
+        <p>&copy; 2024 My Songs App</p>
+    </footer>
+</body>
+
+</html>
